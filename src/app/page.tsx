@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface Country {
@@ -24,6 +24,8 @@ export default function Home() {
   const [filteredCountries, setFilteredCountries] = useState<Country[]>([]);
 
   const regions = ["All", "Africa", "Americas", "Asia", "Europe", "Oceania"];
+
+  const cardsRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
     async function fetchCountries() {
@@ -50,9 +52,30 @@ export default function Home() {
     setFilteredCountries(results);
   }, [searchTerm, selectedRegion, countries]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("fade-in");
+          } else {
+            entry.target.classList.remove("fade-in");
+          }
+        });
+      },
+      { threshold: 0.1 }
+    ); // Adjust threshold as needed
+
+    cardsRef.current.forEach((card) => observer.observe(card));
+
+    return () => {
+      cardsRef.current.forEach((card) => observer.unobserve(card));
+    };
+  }, [filteredCountries]);
+
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-6 flex justify-between gap-4 mt-[100px]">
+      <div className="mb-6 flex justify-between gap-4 mt-[150px]">
         <input
           type="text"
           placeholder="Search for a country..."
@@ -76,11 +99,12 @@ export default function Home() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {filteredCountries.length > 0 ? (
-          filteredCountries.map((country) => (
+          filteredCountries.map((country, index) => (
             <Link
               key={country.cca2}
               href={`/details/${country.cca2}`}
               className="rounded-lg p-4 shadow-lg flex flex-col justify-between h-80 w-64 bg-white dark:bg-gray-800 text-black dark:text-white transform transition-transform duration-300 hover:translate-y-[-8px] hover:shadow-xl"
+              ref={(el) => el && (cardsRef.current[index] = el)}
             >
               {country.flags.png && (
                 <img

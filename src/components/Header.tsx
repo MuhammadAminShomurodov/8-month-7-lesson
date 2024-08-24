@@ -7,6 +7,7 @@ import sun from "../assets/sun.svg";
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isShrunk, setIsShrunk] = useState<boolean>(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -14,6 +15,13 @@ const Header = () => {
       setIsDarkMode(savedTheme === "dark");
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     }
+
+    const handleScroll = () => {
+      setIsShrunk(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const toggleDarkMode = () => {
@@ -27,16 +35,13 @@ const Header = () => {
 
   return (
     <header
-      className={`bg-white dark:bg-gray-800 shadow-custom-light text-black dark:text-white p-4 fixed top-0 left-0 w-full z-10 mb-[1000px]`}
+      className={`header ${isShrunk ? "shrink" : ""} dark:bg-gray-800 dark:text-white fixed top-0 left-0 w-full z-10`}
     >
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold">
           Where in the world?
         </Link>
-        <button
-          onClick={toggleDarkMode}
-          className="flex items-center space-x-2"
-        >
+        <button onClick={toggleDarkMode} className="flex items-center space-x-2">
           <Image
             src={isDarkMode ? sun : moon}
             alt={isDarkMode ? "Sun icon" : "Moon icon"}
