@@ -25,7 +25,8 @@ export default function Home() {
 
   const regions = ["All", "Africa", "Americas", "Asia", "Europe", "Oceania"];
 
-  const cardsRef = useRef<HTMLDivElement[]>([]);
+  // Define the type for the ref array
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     async function fetchCountries() {
@@ -63,13 +64,21 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.1 }
-    ); // Adjust threshold as needed
+      { threshold: 0.1 } // Adjust threshold as needed
+    );
 
-    cardsRef.current.forEach((card) => observer.observe(card));
+    // Attach observer to each card
+    cardsRef.current.forEach((card) => {
+      if (card) observer.observe(card);
+    });
 
     return () => {
-      cardsRef.current.forEach((card) => observer.unobserve(card));
+      // Cleanup observer from each card
+
+      const currentCards = cardsRef.current;
+      currentCards.forEach((card) => {
+        if (card) observer.unobserve(card);
+      });
     };
   }, [filteredCountries]);
 
@@ -103,9 +112,10 @@ export default function Home() {
             <Link
               key={country.cca2}
               href={`/details/${country.cca2}`}
-              className="rounded-lg p-4 shadow-lg flex flex-col justify-between h-80 w-64 bg-white dark:bg-gray-800 text-black dark:text-white transform transition-transform duration-300 hover:translate-y-[-8px] hover:shadow-xl"
-              ref={(el) => el && (cardsRef.current[index] = el)}
-            >
+              className="rounded-lg p-4 shadow-lg flex flex-col justify-between h-80 w-64 bg-white dark:bg-gray-800 text-black dark:text-white transform transition-transform duration-300 hover:translate-y-[-8px] hover:shadow-xl fade-in"
+              ref={(el: HTMLElement | null) => {
+                if (el) cardsRef.current[index] = el;
+              }}            >
               {country.flags.png && (
                 <img
                   src={country.flags.png}
