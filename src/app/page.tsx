@@ -111,7 +111,7 @@ export default function Home() {
               key={country.cca2}
               href={`/details/${country.cca2}`}
               className="rounded-lg p-4 shadow-lg flex flex-col justify-between h-80 w-64 bg-white dark:bg-gray-800 text-black dark:text-white transform transition-transform duration-300 hover:translate-y-[-8px] hover:shadow-xl fade-in"
-              ref={(el: HTMLDivElement | null) => {
+              ref={(el: HTMLAnchorElement | null) => {
                 if (el) cardsRef.current[index] = el;
               }}
             >
@@ -139,8 +139,8 @@ export default function Home() {
                 </p>
               </div>
             </Link>
-          ))
-        ) : (
+
+          ))        ) : (
           <p className="col-span-full text-center text-gray-500 dark:text-gray-400">
             No countries found.
           </p>
